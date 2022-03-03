@@ -4,10 +4,10 @@
 
 class GFXWindow {
 	public:
-		GFXWindow() {
+		GFXWindow(std::string filename) {
 			SDL_Init(SDL_INIT_EVERYTHING);
 
-			window = SDL_CreateWindow("CHIP-8", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_SHOWN);
+			window = SDL_CreateWindow(("CHIP-8 :: "+filename).c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_SHOWN);
 			surface = SDL_GetWindowSurface(window);
 		}
 

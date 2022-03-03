@@ -71,7 +71,7 @@ class VirtualMachine {
 					PC += 2;
 					break;
 
-				case IType::JUMP_ADDR:
+				case IType::JP_ADDR:
 					PC = instr.addr;
 
 					break;
@@ -94,7 +94,7 @@ class VirtualMachine {
 					PC += 2;
 					break;
 
-				case IType::DRAW_X_Y_NIBL:
+				case IType::DRAW_X_Y_NIBL: // This is a spooky one
 					unsigned char x = V[instr.x] % 64;
 					unsigned char y = V[instr.y] % 32;
 					unsigned char height = instr.nibble;
@@ -107,8 +107,20 @@ class VirtualMachine {
 						// Turn row into an array of bools
 						bool row_bools[8];
 						for (int i = 0; i < 8; i ++) {
-							row_bools[i] = (row & (1 << i)) != 0;
+							row_bools[i] = (row & (1 << (7-i))) != 0;
 						}
+
+						// bool row_bools_2[8];
+
+						// // Reverse row_bools
+						// for (int i = 0; i < 8; i ++) {
+						// 	row_bools_2[7-i] = row_bools[i];
+						// }
+
+						// Print out row_bools
+						// for (int i = 0; i < 8; i ++) {
+						// 	std::cout << row_bools_2[i] << " ";
+						// }
 
 						for (int xp = 0; xp < 8; xp ++) {
 							bool bit = row_bools[xp];

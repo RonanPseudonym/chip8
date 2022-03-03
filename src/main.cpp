@@ -10,7 +10,7 @@ int main(int argc, char *argv[]) {
 		br();
 		ok("Created virtal machine");
 
-		GFXWindow win = GFXWindow();
+		GFXWindow win = GFXWindow(argv[1]);
 		ok("Created virtual display");
 
 		br();
