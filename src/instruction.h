@@ -6,7 +6,7 @@
 
 class Instruction {
     public:
-        InstrType type;
+        IType type;
 
         unsigned short addr;
         unsigned char x;
@@ -18,7 +18,17 @@ class Instruction {
             opcode = opcode_to_str(opcode_num);
             clear();
 
-            std::cout << identify("00e0") << std::endl;
+
+            auto iter = encodings.begin();
+            while (iter != encodings.end()) {
+                if (identify(iter -> first)) {
+                    type = iter -> second;
+                    break;
+                }
+                ++iter;
+            }
+
+            std::cout << type << std::endl;
         }
 
     private:

@@ -1,8 +1,9 @@
 #include <map>
 
-enum InstrType {
-    _ADDR,
+enum IType {
     CLS
 };
 
-// map<> encodings;
+std::map<std::string, IType> encodings {
+    {"00e0", IType::CLS},
+};

@@ -59,65 +59,14 @@ class VirtualMachine {
 		void interpret() {
 			Instruction instr = Instruction(opcode);
 
-			// switch (opcode) {
-			// 	case 0x00E0: // CLS
-			// 		std::fill_n(gfx, 64 * 32, false);
-			// 		PC += 2;
-			// 		draw_flag = true;
-			// 		return;
-			// 	// case 0x00EE: // RET || TODO: check if this is correct
-			// 	// 	pc = stack.get_top();
-			// 	// 	pc += 2;
-			// 		// break;
-			// }
-
-			// switch(opcode & 0xF000) { // first digit: has to be > 0, other digits: impossible to be more than 0
-			// 	case 0x1000: // GOTO
-
-			// 		PC += 2;
-			// 		return;
-
-			// 	// case 0x2000: // CALL
-
-			// 	// 	PC += 2;
-			// 	// 	return;
+			switch (instr.type) {
+				case IType::CLS:
+					std::fill_n(gfx, 64 * 32, false);
+					draw_flag = true;
+					PC += 2;
 					
-			// 	// case 0x3000: // SKIP if Vx == kk
-
-			// 	// 	PC += 2;
-			// 	// 	return;
-
-			// 	// case 0x4000: // SKIP if Vx != kk
-
-			// 	// 	PC += 2;
-			// 	// 	return;
-
-			// 	// case 0x5000: // SKIP if Vx == Vy
-
-			// 	// 	PC += 2;
-			// 	// 	return;
-
-			// 	case 0x6000: // Vx = kk
-
-			// 		PC += 2;
-			// 		return;
-
-			// 	case 0x7000: // Vx += kk
-
-			// 		PC += 2;
-			// 		return;
-
-			// 	case 0xA000: // SET INDEX REGISTER
-
-			// 		PC += 2;
-			// 		return;
-
-			// 	case 0xD000: // DRAW
-
-			// 		PC += 2;
-			// 		return;
-
-			// }
+					break;
+				}
 		}
 
 		void cycle() {
