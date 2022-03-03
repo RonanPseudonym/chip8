@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "read.h"
+// #include "read.h"
 #include "stack.h"
 #include "instruction.h"
 
@@ -14,15 +14,15 @@ class VirtualMachine {
 		Stack stack;
 
 		unsigned short I;
-		unsigned short PC;
 
 		unsigned int SP;
+		unsigned short PC;
 
 		unsigned int sound_timer;
 		unsigned int display_timer;
 
 	public:
-		bool gfx[64 * 32];
+		bool gfx[32][64];
 		bool draw_flag;
 
 		VirtualMachine() {
@@ -52,21 +52,86 @@ class VirtualMachine {
 			opcode = c0 << 8 | c1;
 		}
 
-		void advance() {
-			PC += 2;
-		}
+		// void advance() {
+		// 	PC += 2;
+		// }
 
 		void interpret() {
 			Instruction instr = Instruction(opcode);
 
 			switch (instr.type) {
 				case IType::CLS:
-					std::fill_n(gfx, 64 * 32, false);
-					draw_flag = true;
+					// Fill gfx with 0s
+					for (int i = 0; i < 32; i++) {
+						for (int j = 0; j < 64; j++) {
+							gfx[i][j] = false;
+						}
+					}
+
 					PC += 2;
-					
 					break;
-				}
+
+				case IType::JUMP_ADDR:
+					PC = instr.addr;
+
+					break;
+
+				case IType::LD_VX_BYTE:
+					V[instr.x] = instr.byte;
+
+					PC += 2;
+					break;
+
+				case IType::ADD_VX_BYTE:
+					V[instr.x] += instr.byte;
+
+					PC += 2;
+					break;
+
+				case IType::LD_I_ADDR:
+					I = instr.addr;
+
+					PC += 2;
+					break;
+
+				case IType::DRAW_X_Y_NIBL:
+					unsigned char x = V[instr.x] % 64;
+					unsigned char y = V[instr.y] % 32;
+					unsigned char height = instr.nibble;
+
+					V[0xF] = 0;
+
+					for (int yp = 0; yp < height; yp ++) {
+						unsigned char row = memory[I + yp];
+
+						// Turn row into an array of bools
+						bool row_bools[8];
+						for (int i = 0; i < 8; i ++) {
+							row_bools[i] = (row & (1 << i)) != 0;
+						}
+
+						for (int xp = 0; xp < 8; xp ++) {
+							bool bit = row_bools[xp];
+
+							if (bit && gfx[y + yp][x + xp] == true) { // if both are on
+								gfx[y + yp][x + xp] = false;
+								V[0xF] = 1;
+							} else if (bit) {
+								gfx[y + yp][x + xp] = true;
+							}
+
+							if (x + xp >= 64 || y + yp >= 32) {
+								warning("X or Y is out of bounds, skipping rest of sprite line");
+								break;
+							}
+						}
+					}
+
+					draw_flag = true;
+
+					PC += 2;
+					break;
+			}
 		}
 
 		void cycle() {

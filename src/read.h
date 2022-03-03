@@ -1,4 +1,5 @@
 #include <fstream>
+#include "debug.h"
 
 class RomLoader {
 	private:
@@ -11,10 +12,23 @@ class RomLoader {
 	public:
 		RomLoader(std::string _name) {
 			name = _name;
+
+			ok("RomLoader instantiated");
+
+			if (name.substr(name.find_last_of(".") + 1) != "ch8") {
+				warning("File extension is not .ch8");
+			};
 		}
 
 		void load() {
 			std::ifstream infile (name, std::ios::in | std::ios::out | std::ios::binary);
+
+			if (!infile) {
+				error("Could not open file " + name);
+				return;
+			}
+
+			ok("File readable");
 
 			int c = 0;
 			char input;
@@ -27,7 +41,10 @@ class RomLoader {
 		        c++;
 		    }
 
+			ok("File loaded into memory");
+
 		    rom_length = c + 1;
+			ok("ROM size calculated");
 		}
 
 		void load_to_memory(unsigned char (&memory)[4096], int offset) {

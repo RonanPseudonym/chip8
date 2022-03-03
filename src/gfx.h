@@ -16,23 +16,18 @@ class GFXWindow {
 			SDL_Quit();
 		}
 
-		// void update(bool gfx[64 * 32]) {
-			
-		// }
-
 		bool update(VirtualMachine* vm) {
 			SDL_Event event;    // Event variable
 
 			if (vm->draw_flag) {
 				SDL_FillRect(surface, NULL, 0x000000);
 
-				for (int i = 0; i < 2048; i++) {
-					if (vm->gfx[i]) {
-						int x = (i % 64) * 10;
-						int y = (i / 64) * 10;
-
-						SDL_Rect rect = {x, y, 10, 10};
-						SDL_FillRect(surface, &rect, 0xFFFFFF);
+				for (int y = 0; y < 32; y++) {
+					for (int x = 0; x < 64; x ++) {
+						if (vm->gfx[y][x]) {
+							SDL_Rect rect = {x * 10, y * 10, 10, 10};
+							SDL_FillRect(surface, &rect, 0xFFFFFF);
+						}
 					}
 				}
 

@@ -3,10 +3,12 @@
 #include <sstream>
 
 #include "decode.h"
+#include "read.h"
 
 class Instruction {
     public:
         IType type;
+        std::string opcode;
 
         unsigned short addr;
         unsigned char x;
@@ -23,17 +25,20 @@ class Instruction {
             while (iter != encodings.end()) {
                 if (identify(iter -> first)) {
                     type = iter -> second;
-                    break;
+                    return;
                 }
                 ++iter;
             }
 
-            std::cout << type << std::endl;
+            error("Unknown instruction 0x" + opcode);
         }
 
     private:
-        std::string opcode;
-        char hex_digits[16] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
+        char hex_digits[16] = {
+            '0', '1', '2', '3',
+            '4', '5', '6', '7', 
+            '8', '9', 'a', 'b', 
+            'c', 'd', 'e', 'f'};
 
         std::string opcode_to_str(unsigned short opcode) {
             std::stringstream ss;
@@ -62,8 +67,8 @@ class Instruction {
             char kk[2]  = {'0', '0'};
             char nnn[4] = {'0', '0', '0', '0'};
 
-            int kk_c;
-            int nnn_c;
+            int kk_c = 0;
+            int nnn_c = 1;
 
             for (int i = 0; i < 4; i ++) {
                 switch (check[i]) {
@@ -96,6 +101,7 @@ class Instruction {
                             clear();
                             return false;
                         }
+                        break;
                 }
             }
 
@@ -106,8 +112,8 @@ class Instruction {
                 hex_loc_of(nnn[3]);
 
             byte = (
-                hex_loc_of(nnn[0]) << 4) |
-                hex_loc_of(nnn[1]);
+                hex_loc_of(kk[0]) << 4) |
+                hex_loc_of(kk[1]);
 
             return true;
         }
