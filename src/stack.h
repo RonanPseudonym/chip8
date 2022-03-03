@@ -28,4 +28,8 @@ class Stack {
 				top --;
 			}
 		}
+
+		short get_top() {
+			return stack[top];
+		}
 };
