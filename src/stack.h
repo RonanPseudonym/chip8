@@ -21,11 +21,11 @@ class Stack {
 			}
 		}
 
-		void pop() {
+		unsigned short pop() {
 			if (top <= -1) {
 				throw std::underflow_error("Stack Underflow");
 			} else {
-				top --;
+				return stack[top--]; // -- on right means that it returns then evaluates
 			}
 		}
 

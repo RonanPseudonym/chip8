@@ -2,12 +2,20 @@
 #include <SDL2/SDL.h>
 #include "vm.h"
 
+const int MS_BETWEEN_FRAMES = 17;
+unsigned int unix_time = 0;
+
 class GFXWindow {
 	public:
 		GFXWindow(std::string filename) {
 			SDL_Init(SDL_INIT_EVERYTHING);
 
-			window = SDL_CreateWindow(("CHIP-8 :: "+filename).c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_SHOWN);
+			// get name of file from filename
+			std::string name = filename.substr(0, filename.find_last_of("."));
+			// remove path from name
+			name = name.substr(name.find_last_of("/") + 1);
+
+			window = SDL_CreateWindow(("CHIP-8 :: "+name).c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_SHOWN);
 			surface = SDL_GetWindowSurface(window);
 		}
 
@@ -17,6 +25,11 @@ class GFXWindow {
 		}
 
 		bool update(VirtualMachine* vm) {
+			if (vm->display_timer > 0) {
+				vm->display_timer--;
+				return true;
+			}
+
 			SDL_Event event;    // Event variable
 
 			if (vm->draw_flag) {
@@ -40,6 +53,20 @@ class GFXWindow {
 			SDL_PollEvent(&event);  // Catching the poll event.
 
 			frame_counter ++;
+
+			if (unix_time != 0) {
+				// get time between frames
+				unsigned int time_between_frames = SDL_GetTicks() - unix_time;
+				unsigned int time_to_sleep = MS_BETWEEN_FRAMES - time_between_frames;
+
+				if (time_between_frames > MS_BETWEEN_FRAMES) {
+					warning("Frame took too long: " + std::to_string(time_between_frames) + std::string("/17 ms"));
+				} else {
+					SDL_Delay(time_to_sleep);
+				}
+			}
+
+			unix_time = SDL_GetTicks();
 
 			return event.type != SDL_QUIT;
 			// }

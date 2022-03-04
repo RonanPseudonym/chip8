@@ -20,6 +20,10 @@ void warning(std::string message) {
     pretty_print("WARNING", "33;1", message);
 }
 
+void info(std::string message) {
+    pretty_print("INFO", "36;1", message);
+}
+
 void br() {
     std::cout << std::endl;
 }

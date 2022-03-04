@@ -1,5 +1,5 @@
 make --dry-run --keep-going --print-directory
 make: Entering directory `/Users/em/Dropbox/c++/chip8'
-g++ -lSDL2 -lSDL2main -std=c++11 src/main.cpp
+make: `a.out' is up to date.
 make: Leaving directory `/Users/em/Dropbox/c++/chip8'
  

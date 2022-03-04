@@ -1,5 +1,5 @@
 #include <fstream>
-#include "debug.h"
+#include "instruction.h"
 
 class RomLoader {
 	private:

@@ -15,8 +15,6 @@ class Instruction {
         unsigned char byte;
         unsigned char nibble;
 
-        char addr_str[4];
-
         Instruction(unsigned short opcode_num) {
             opcode = opcode_to_str(opcode_num);
             clear();
@@ -32,15 +30,6 @@ class Instruction {
             }
 
             error("Unknown instruction 0x" + opcode);
-        }
-
-        int hex_loc_of(char c) {
-            for (int i = 0; i < 16; i++) {
-                if (hex_digits[i] == c) {
-                    return i;
-                }
-            }
-            return -1;
         }
 
     private:
@@ -62,6 +51,15 @@ class Instruction {
             y = 0;
             byte = 0;
             nibble = 0;
+        }
+
+        int hex_loc_of(char c) {
+            for (int i = 0; i < 16; i++) {
+                if (hex_digits[i] == c) {
+                    return i;
+                }
+            }
+            return -1;
         }
 
         bool identify(std::string check) {
@@ -104,11 +102,6 @@ class Instruction {
                         }
                         break;
                 }
-            }
-
-            // set addr_str to nnn
-            for (int i = 0; i < 4; i++) {
-                addr_str[i] = nnn[i];
             }
 
             addr = (

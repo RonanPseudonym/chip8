@@ -10,16 +10,16 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 make: *** No rule to make target `all'.  Stop.
  
 
-# Make data base, printed on Wed Mar  2 20:06:47 2022
+# Make data base, printed on Thu Mar  3 16:19:24 2022
 
 # Variables
 
 # automatic
 <D = $(patsubst %/,%,$(dir $<))
 # automatic
+ 
 ?F = $(notdir $?)
 # environment
- 
 VSCODE_LOG_NATIVE = false
 # automatic
 ?D = $(patsubst %/,%,$(dir $?))
@@ -44,11 +44,13 @@ __CFBundleIdentifier = com.microsoft.VSCode
 # environment
 INFOPATH = /opt/homebrew/share/info:
 # environment
-VSCODE_IPC_HOOK_EXTHOST = /var/folders/m6/lghtr9dj7t70_04q528twt3h0000gn/T/vscode-ipc-b0978065-1d34-495d-b559-aec75bf50cfd.sock
+VSCODE_IPC_HOOK_EXTHOST = /var/folders/m6/lghtr9dj7t70_04q528twt3h0000gn/T/vscode-ipc-28675523-31c0-42d4-bb57-159e72637a74.sock
 # environment
 VSCODE_CWD = /
 # environment
 PATH = /Library/Frameworks/Python.framework/Versions/3.8/bin:/opt/local/bin:/opt/local/sbin:/opt/homebrew/bin:/opt/homebrew/sbin:/Library/Frameworks/Python.framework/Versions/3.10/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
+# environment
+LaunchInstanceID = A42362B7-4FDB-46CE-8219-023BF470E92D
 # environment
 VSCODE_LOG_STACK = false
 # environment
@@ -56,7 +58,7 @@ ELECTRON_RUN_AS_NODE = 1
 # default
 .FEATURES := target-specific order-only second-expansion else-if archives jobserver check-symlink
 # environment
-SSH_AUTH_SOCK = /private/tmp/com.apple.launchd.qsEJV4fnDl/Listeners
+SSH_AUTH_SOCK = /private/tmp/com.apple.launchd.5fLX6tVACq/Listeners
 # automatic
 %F = $(notdir $%)
 # environment
@@ -80,7 +82,7 @@ VSCODE_CODE_CACHE_PATH = /Users/em/Library/Application Support/Code/CachedData/f
 # environment
 LOGNAME = em
 # environment
-APPLICATION_INSIGHTS_NO_DIAGNOSTIC_CHANNEL = true
+APPLICATION_INSIGHTS_NO_DIAGNOSTIC_CHANNEL = 1
 # environment
 VSCODE_HANDLES_UNCAUGHT_ERRORS = true
 # automatic
@@ -139,6 +141,8 @@ MAKEFILES :=
 <F = $(notdir $<)
 # environment
 LC_ALL = C
+# environment
+SECURITYSESSIONID = 186b3
 # automatic
 ^F = $(notdir $^)
 # default
@@ -152,9 +156,9 @@ MAKELEVEL := 0
 # environment
 LANG = C
 # environment
-VSCODE_PID = 44946
+VSCODE_PID = 589
 # variable set hash-table stats:
-# Load=69/1024=7%, Rehash=0, Collisions=1/93=1%
+# Load=71/1024=7%, Rehash=0, Collisions=1/95=1%
 
 # Pattern-specific Variable Values
 
@@ -162,10 +166,9 @@ VSCODE_PID = 44946
 
 # Directories
 
-# . (device 16777234, inode 4682419): 9 files, no impossibilities.
+# . (device 16777232, inode 4682419): 9 files, no impossibilities.
 
 # 9 files, no impossibilities in 1 directories.
- 
 
 # Implicit Rules
 
@@ -195,9 +198,15 @@ all:
 #  File has not been updated.
 
 # Not a target:
+src/cli.h:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
 makefile:
 #  Implicit rule search has been done.
-#  Last modified 2022-03-02 20:06:46
+#  Last modified 2022-03-03 16:19:23
 #  File has been updated.
 #  Successfully updated.
 # variable set hash-table stats:
@@ -209,7 +218,7 @@ src/read.h:
 #  Modification time never checked.
 #  File has not been updated.
 
-a.out: src/main.cpp src/gfx.h src/read.h src/stack.h src/vm.h src/instruction.h src/decode.h src/debug.h
+a.out: src/main.cpp src/gfx.h src/read.h src/stack.h src/vm.h src/instruction.h src/decode.h src/debug.h src/cli.h
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
@@ -260,7 +269,7 @@ src/debug.h:
 #  File has not been updated.
 
 # files hash-table stats:
-# Load=13/1024=1%, Rehash=0, Collisions=0/33=0%
+# Load=14/1024=1%, Rehash=0, Collisions=0/35=0%
 # VPATH Search Paths
 
 # No `vpath' search paths.
@@ -272,6 +281,6 @@ src/debug.h:
 # strcache size: total = 4096 / max = 4096 / min = 4096 / avg = 4096
 # strcache free: total = 4087 / max = 4087 / min = 4087 / avg = 4087
 
-# Finished Make data base on Wed Mar  2 20:06:47 2022
+# Finished Make data base on Thu Mar  3 16:19:24 2022
 
  

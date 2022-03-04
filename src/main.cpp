@@ -2,6 +2,10 @@
 #include "gfx.h"
 
 int main(int argc, char *argv[]) {
+	parse_cli(argc, argv);
+
+	br();
+	
 	ok("Started program");
 
 	if (argc > 1) {
@@ -19,16 +23,22 @@ int main(int argc, char *argv[]) {
 		ok("ROM loaded");
 
 		br();
+
+		add_conditional_flags();
+		ok("Configured instruction set from command-line flags");
+		br();
+
 		ok("Setup complete");
 		br();
 
 		bool first_cycle = true;
 
 		for (;;) {
-			vm.cycle();
+			for (int i = 0; i < 10; i ++) { // 10 cycles per frame
+				vm.cycle();
+			}
 
 			if (first_cycle) {
-				ok("Initial cycle completed");
 				first_cycle = false;
 			}
 

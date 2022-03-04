@@ -1,8 +1,8 @@
 #include <iostream>
+#include <map>
 
-// #include "read.h"
+#include "read.h"
 #include "stack.h"
-#include "instruction.h"
 
 class VirtualMachine {
 	private:
@@ -17,15 +17,30 @@ class VirtualMachine {
 
 		unsigned int SP;
 		unsigned short PC;
-
-		unsigned int sound_timer;
-		unsigned int display_timer;
-
 	public:
 		bool gfx[32][64];
 		bool draw_flag;
 
+		unsigned int sound_timer;
+		unsigned int display_timer;
+
+		std::map<std::string, bool> announcements {
+			{"original_shift", false},
+			{"modern_offset_jump", false},
+			{"original_store_and_load", false}
+		};
+
+		void announce(std::string ann) {
+			if (announcements[ann]) {
+				return;
+			}
+
+			announcements[ann] = true;
+			info(ann + " is set to " + (flags[ann] ? "true" : "false") + ", corresponding instruction was just used");
+		}
+
 		VirtualMachine() {
+			srand(time(0));
 		}
 
 		void load_fontset(unsigned char font[80])
@@ -71,9 +86,45 @@ class VirtualMachine {
 					PC += 2;
 					break;
 
+				case IType::RET: // Also autocompleted (kinda)
+					PC = stack.pop();
+
+					break;
+					
+
 				case IType::JP_ADDR:
 					PC = instr.addr;
 
+					break;
+
+				case IType::CALL_ADDR: // Autocompleted, might not work
+					stack.push(PC + 2); // Especially don't trust the +2
+					PC = instr.addr;
+
+					break;
+
+				case IType::SE_VX_BYTE:
+					if (V[instr.x] == instr.byte) {
+						PC += 2;
+					}
+
+					PC += 2;
+					break;
+
+				case IType::SNE_VX_BYTE:
+					if (V[instr.x] != instr.byte) {
+						PC += 2;
+					}
+
+					PC += 2;
+					break;
+
+				case IType::SE_VX_VY:
+					if (V[instr.x] == V[instr.y]) {
+						PC += 2;
+					}
+
+					PC += 2;
 					break;
 
 				case IType::LD_VX_BYTE:
@@ -82,11 +133,114 @@ class VirtualMachine {
 					PC += 2;
 					break;
 
-				case IType::ADD_VX_BYTE:
-					V[instr.x] += instr.byte;
+				case IType::ADD_VX_BYTE: { // These might have overflow issues
+					unsigned short sum = V[instr.x] + instr.byte;
+
+					if (sum > 255) V[0xF] = 1;
+					else V[0xF] = 0;
+
+					V[instr.x] = sum; // Pretty sure this works?
 
 					PC += 2;
 					break;
+				}
+
+				case IType::LD_VX_VY:
+					V[instr.x] = V[instr.y];
+
+					PC += 2;
+					break;
+
+				case IType::OR_VX_VY:
+					V[instr.x] |= V[instr.y];
+
+					PC += 2;
+					break;
+
+				case IType::AND_VX_VY:
+					V[instr.x] &= V[instr.y];
+
+					PC += 2;
+					break;
+
+				case IType::XOR_VX_VY:
+					V[instr.x] ^= V[instr.y];
+
+					PC += 2;
+					break;
+
+				case IType::ADD_VX_VY: {
+					unsigned short sum = V[instr.x] + V[instr.y];
+
+					if (sum > 255) V[0xF] = 1;
+					else V[0xF] = 0;
+
+					V[instr.x] = sum; // Pretty sure this works?
+
+					PC += 2;
+					break;
+				}
+
+				case IType::SUB_VX_VY: {
+					if (V[instr.x] > V[instr.y]) V[0xF] = 1;
+					else V[0xF] = 0;
+
+					V[instr.x] -= V[instr.y];
+
+					PC += 2;
+					break;
+				}
+
+				case IType::SHR_VX: {
+					if (flags["original_shift"]) {
+						V[instr.x] = V[instr.y];
+					}
+
+					// Don't trust this
+
+					bool x_last_bit = V[instr.x] & 0x1;
+					V[0xF] = x_last_bit ? 1 : 0;
+
+					V[instr.x] /= 2;
+
+					PC += 2;
+
+					announce("original_shift");
+					break;
+				}
+
+				case IType::SUBN_VX_VY: {
+					if (V[instr.x] > V[instr.y]) V[0xF] = 1;
+					else V[0xF] = 0;
+
+					V[instr.y] -= V[instr.x];
+
+					PC += 2;
+					break;
+				}
+
+				case IType::SHL_VX: {
+					if (flags["original_shift"]) {
+						V[instr.x] = V[instr.y];
+					}
+
+					bool x_last_bit = V[instr.x] & 0x1;
+					V[0xF] = x_last_bit ? 1 : 0;
+
+					V[instr.x] *= 2;
+
+					PC += 2;
+
+					announce("original_shift");
+					break;
+				}
+
+				case IType::SNE_VX_VY: {
+					if (V[instr.x] != V[instr.y]) PC += 2;
+
+					PC += 2;
+					break;
+				}
 
 				case IType::LD_I_ADDR:
 					I = instr.addr;
@@ -94,10 +248,29 @@ class VirtualMachine {
 					PC += 2;
 					break;
 
-				case IType::DRAW_X_Y_NIBL: // This is a spooky one
+				case IType::JP_V0_ADDR:
+					if (flags["modern_offset_jump"]) {
+						PC = instr.addr + V[instr.hex_loc_of(instr.addr_str[1])] + 2; // +2?
+					} else {
+						PC = instr.addr + V[0] + 2; // +2?
+					}
+
+					announce("modern_offset_jump");
+					break;
+
+				case IType::RND_VX_BYTE:
+					V[instr.x] = (rand() % 256) & instr.byte; // I think rand() is % 256 but I'm not sure
+
+					PC += 2;
+					break;
+
+				case IType::DRAW_X_Y_NIBL: { // This is a spooky one
 					unsigned char x = V[instr.x] % 64;
 					unsigned char y = V[instr.y] % 32;
 					unsigned char height = instr.nibble;
+
+					// print out x y and height
+					// std::cout << "x: " << +x << " y: " << +y << " height: " << +height << std::endl;
 
 					V[0xF] = 0;
 
@@ -140,6 +313,107 @@ class VirtualMachine {
 					}
 
 					draw_flag = true;
+
+					PC += 2;
+					break;
+				}
+
+				// case SKP_VX:
+				// 	// Key stuff
+				// 	// Deal with later
+
+				// 	PC += 2;
+				// 	break;
+
+				// case SKNP_VX:
+				// 	// Key stuff
+				// 	// Deal with later
+
+				// 	PC += 2;
+				// 	break;
+
+				case LD_VX_DT:
+					V[instr.x] = display_timer;
+
+					PC += 2;
+					break;
+
+				// case LD_VX_K:
+				// 	// Key stuff
+
+				// 	PC += 2;
+				// 	break;
+
+				case LD_DT_VX:
+					display_timer = V[instr.x];
+
+					PC += 2;
+					break;
+
+				case LD_ST_VX:
+					sound_timer = V[instr.x];
+
+					PC += 2;
+					break;
+
+				case ADD_I_VX:
+					I += V[instr.x];
+
+					PC += 2;
+					break;
+
+				// case LD_F_VX:
+				// 	// Icky font stuff
+
+				// 	PC += 2;
+				// 	break;
+
+				// case LD_B_VX:
+				// 	// Lmao what
+
+				// 	PC += 2;
+				// 	break;
+
+				case LD_I_VX:
+					if (flags["original_store_and_load"]) {
+						for (int i = 0; i < instr.x; i ++) {
+							memory[I] = V[i];
+							I ++;
+						}
+
+						I += instr.x + 1;
+					} else {
+						for (int i = 0; i < instr.x; i ++) {
+							memory[I + i] = V[i];
+						}
+					}
+
+					PC += 2;
+
+					announce("original_store_and_load");
+					break;
+
+				case LD_VX_I:
+					if (flags["original_store_and_load"]) {
+						for (int i = 0; i < instr.x; i ++) {
+							V[i] = memory[I];
+							I ++;
+						}
+
+						I += instr.x + 1;
+					} else {
+						for (int i = 0; i < instr.x; i ++) {
+							V[i] = memory[I + i];
+						}
+					}
+
+					PC += 2;
+
+					announce("original_store_and_load");
+					break;
+
+				default:
+					warning("Instruction "+std::to_string(instr.type)+" ["+instr.opcode+"] not implemented");
 
 					PC += 2;
 					break;
