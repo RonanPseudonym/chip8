@@ -17,6 +17,7 @@ class VirtualMachine {
 
 		unsigned int SP;
 		unsigned short PC;
+
 	public:
 		bool gfx[32][64];
 		bool draw_flag;
@@ -71,8 +72,11 @@ class VirtualMachine {
 		// 	PC += 2;
 		// }
 
-		void interpret() {
+		void interpret(char keyout) {
 			Instruction instr = Instruction(opcode);
+
+			if (flags["slow_mode"])
+				info("Executing instruction " + instr.opcode);
 
 			switch (instr.type) {
 				case IType::CLS:
@@ -318,19 +322,17 @@ class VirtualMachine {
 					break;
 				}
 
-				// case SKP_VX:
-				// 	// Key stuff
-				// 	// Deal with later
+				case SKP_VX:
+					if (V[instr.x] == keyout) PC += 2;
 
-				// 	PC += 2;
-				// 	break;
+					PC += 2;
+					break;
 
-				// case SKNP_VX:
-				// 	// Key stuff
-				// 	// Deal with later
+				case SKNP_VX:
+					if (V[instr.x] != keyout) PC += 2;
 
-				// 	PC += 2;
-				// 	break;
+					PC += 2;
+					break;
 
 				case LD_VX_DT:
 					V[instr.x] = display_timer;
@@ -420,11 +422,11 @@ class VirtualMachine {
 			}
 		}
 
-		void cycle() {
+		void cycle(char keyout) {
 			draw_flag = false;
 
 			current();
-			interpret();
+			interpret(keyout);
 
 			if (display_timer > 0)
 				display_timer --;

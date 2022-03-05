@@ -34,8 +34,12 @@ int main(int argc, char *argv[]) {
 		bool first_cycle = true;
 
 		for (;;) {
-			for (int i = 0; i < 10; i ++) { // 10 cycles per frame
-				vm.cycle();
+			if (flags["slow_mode"]) {
+				vm.cycle(win.keyout);
+			} else {
+				for (int i = 0; i < 10; i ++) { // 10 cycles per frame
+					vm.cycle(win.keyout);
+				}
 			}
 
 			if (first_cycle) {

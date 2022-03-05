@@ -5,8 +5,18 @@
 const int MS_BETWEEN_FRAMES = 17;
 unsigned int unix_time = 0;
 
+const unsigned char SCANCODES[16] {
+	27, 30, 31, 32,
+	20, 26, 8,
+	4, 22, 7,
+	29, 6,
+	33, 21, 9, 25
+};
+
 class GFXWindow {
 	public:
+		char keyout;
+
 		GFXWindow(std::string filename) {
 			SDL_Init(SDL_INIT_EVERYTHING);
 
@@ -52,6 +62,22 @@ class GFXWindow {
 
 			SDL_PollEvent(&event);  // Catching the poll event.
 
+			// keyout = -1;
+
+			switch (event.type) {
+				case SDL_QUIT:
+					return false;
+					break;
+				case SDL_KEYDOWN:
+					keyout = identify_key_from_scancode(event.key.keysym.scancode);
+					break;
+				case SDL_KEYUP:
+					keyout = -1;
+					break;
+				default:
+					break;
+			}
+
 			frame_counter ++;
 
 			if (unix_time != 0) {
@@ -63,12 +89,15 @@ class GFXWindow {
 					warning("Frame took too long: " + std::to_string(time_between_frames) + std::string("/17 ms"));
 				} else {
 					SDL_Delay(time_to_sleep);
+
+					if (flags["slow_mode"])
+						SDL_Delay(200);
 				}
 			}
 
 			unix_time = SDL_GetTicks();
 
-			return event.type != SDL_QUIT;
+			return true;
 			// }
 		}
 
@@ -80,4 +109,14 @@ class GFXWindow {
 		int height = 320;
 
 		int frame_counter = 0;
+
+		int identify_key_from_scancode(int scancode) {
+			for (int i = 0; i < 16; i++) {
+				if (scancode == SCANCODES[i]) {
+					return i;
+				}
+			}
+
+			return -1;
+		}
 };
