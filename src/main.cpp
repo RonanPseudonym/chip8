@@ -31,19 +31,16 @@ int main(int argc, char *argv[]) {
 		ok("Setup complete");
 		br();
 
-		bool first_cycle = true;
 
 		for (;;) {
-			if (flags["slow_mode"]) {
-				vm.cycle(win.keyout);
-			} else {
-				for (int i = 0; i < 10; i ++) { // 10 cycles per frame
+			if (vm.display_timer == 0) {
+				if (flags["slow_mode"]) {
 					vm.cycle(win.keyout);
+				} else {
+					for (int i = 0; i < 10; i ++) { // 10 cycles per frame
+						vm.cycle(win.keyout);
+					}
 				}
-			}
-
-			if (first_cycle) {
-				first_cycle = false;
 			}
 
 			if (!win.update(&vm) || err_flag) {

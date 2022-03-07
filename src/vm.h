@@ -2,7 +2,26 @@
 #include <map>
 
 #include "read.h"
-#include "stack.h"
+// #include "stack.h"
+
+const unsigned char FONT[80] {
+	0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
+	0x20, 0x60, 0x20, 0x20, 0x70, // 1
+	0xF0, 0x10, 0xF0, 0x80, 0xF0, // 2
+	0xF0, 0x10, 0xF0, 0x10, 0xF0, // 3
+	0x90, 0x90, 0xF0, 0x10, 0x10, // 4
+	0xF0, 0x80, 0xF0, 0x10, 0xF0, // 5
+	0xF0, 0x80, 0xF0, 0x90, 0xF0, // 6
+	0xF0, 0x10, 0x20, 0x40, 0x40, // 7
+	0xF0, 0x90, 0xF0, 0x90, 0xF0, // 8
+	0xF0, 0x90, 0xF0, 0x10, 0xF0, // 9
+	0xF0, 0x90, 0xF0, 0x90, 0x90, // A
+	0xE0, 0x90, 0xE0, 0x90, 0xE0, // B
+	0xF0, 0x80, 0x80, 0x80, 0xF0, // C
+	0xE0, 0x90, 0x90, 0x90, 0xE0, // D
+	0xF0, 0x80, 0xF0, 0x80, 0xF0, // E
+	0xF0, 0x80, 0xF0, 0x80, 0x80  // F
+};
 
 class VirtualMachine {
 	private:
@@ -11,9 +30,8 @@ class VirtualMachine {
 		unsigned char memory[4096];
 		unsigned char V[16];
 
-		Stack stack;
-
 		unsigned short I;
+		unsigned short stack[16];
 
 		unsigned int SP;
 		unsigned short PC;
@@ -22,8 +40,8 @@ class VirtualMachine {
 		bool gfx[32][64];
 		bool draw_flag;
 
-		unsigned int sound_timer;
-		unsigned int display_timer;
+		unsigned int sound_timer = 0;
+		unsigned int display_timer = 0;
 
 		std::map<std::string, bool> announcements {
 			{"original_shift", false},
@@ -42,6 +60,10 @@ class VirtualMachine {
 
 		VirtualMachine() {
 			srand(time(0));
+
+			for (int i = 0; i < 80; i++) {
+				memory[i] = FONT[i];
+			}
 		}
 
 		void load_fontset(unsigned char font[80])
@@ -91,7 +113,9 @@ class VirtualMachine {
 					break;
 
 				case IType::RET: // Also autocompleted (kinda)
-					PC = stack.pop();
+					SP --;
+					PC = stack[SP];
+					PC += 2;
 
 					break;
 					
@@ -101,8 +125,9 @@ class VirtualMachine {
 
 					break;
 
-				case IType::CALL_ADDR: // Autocompleted, might not work
-					stack.push(PC + 2); // Especially don't trust the +2
+				case IType::CALL_ADDR:
+					stack[SP] = PC;
+					SP ++;
 					PC = instr.addr;
 
 					break;
@@ -138,15 +163,18 @@ class VirtualMachine {
 					break;
 
 				case IType::ADD_VX_BYTE: { // These might have overflow issues
-					unsigned short sum = V[instr.x] + instr.byte;
+					// unsigned short sum = V[instr.x] + instr.byte;
 
-					if (sum > 255) V[0xF] = 1;
-					else V[0xF] = 0;
+					// if (sum > 255) V[0xF] = 1;
+					// else V[0xF] = 0;
 
-					V[instr.x] = sum; // Pretty sure this works?
+					// V[instr.x] = sum; // Pretty sure this works?
 
+					// PC += 2;
+					// break;
+
+					V[instr.x] += instr.byte; 
 					PC += 2;
-					break;
 				}
 
 				case IType::LD_VX_VY:
@@ -364,17 +392,22 @@ class VirtualMachine {
 					PC += 2;
 					break;
 
-				// case LD_F_VX:
-				// 	// Icky font stuff
+				case LD_F_VX: // Don't 100% trust this one
+					I = V[instr.x] * 5;
 
-				// 	PC += 2;
-				// 	break;
+					PC += 2;
+					break;
 
-				// case LD_B_VX:
-				// 	// Lmao what
+				case LD_B_VX: { // pretty sure this works
+					unsigned char x = V[instr.x];
 
-				// 	PC += 2;
-				// 	break;
+					memory[I] = x / 100;
+					memory[I + 1] = (x % 100) / 10;
+					memory[I + 2] = x % 10;
+
+					PC += 2;
+					break;
+				}
 
 				case LD_I_VX:
 					if (flags["original_store_and_load"]) {

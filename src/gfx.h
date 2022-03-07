@@ -35,12 +35,11 @@ class GFXWindow {
 		}
 
 		bool update(VirtualMachine* vm) {
+			SDL_Event event;    // Event variable
+
 			if (vm->display_timer > 0) {
 				vm->display_timer--;
-				return true;
 			}
-
-			SDL_Event event;    // Event variable
 
 			if (vm->draw_flag) {
 				SDL_FillRect(surface, NULL, 0x000000);
@@ -89,11 +88,11 @@ class GFXWindow {
 					warning("Frame took too long: " + std::to_string(time_between_frames) + std::string("/17 ms"));
 				} else {
 					SDL_Delay(time_to_sleep);
-
-					if (flags["slow_mode"])
-						SDL_Delay(200);
 				}
 			}
+
+			if (flags["slow_mode"])
+						SDL_Delay(flags["extra_slow"] ? 1000 : 200);
 
 			unix_time = SDL_GetTicks();
 

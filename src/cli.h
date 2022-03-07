@@ -8,7 +8,8 @@ std::map<std::string, bool> flags {
     {"original_shift", false},
     {"modern_offset_jump", false},
     {"original_store_and_load", false},
-    {"slow_mode", false}
+    {"slow_mode", false},
+    {"extra_slow", false}
 };
 
 void parse_cli(int argc, char *argv[]) {
